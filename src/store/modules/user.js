@@ -1,12 +1,18 @@
 import { login, logout, getInfo } from '@/api/acl/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
-import { resetRouter } from '@/router'
+import { resetRouter, asyncRoutes, constantRoutes, anyRoutes } from '@/router'
+import router from '@/router'
 
 const getDefaultState = () => {
   return {
     token: getToken(),
     name: '',
-    avatar: ''
+    avatar: '',
+    routes: [],
+    buttons: [],
+    roles: [],
+    resultAsyncRoutes: [],
+    resultAllRoutes: []
   }
 }
 
@@ -22,7 +28,29 @@ const mutations = {
   SET_USERINFO: (state, userInfo) => {
     state.name = userInfo.name
     state.avatar = userInfo.avatar
+    state.routes = userInfo.routes;
+    state.buttons = userInfo.buttons;
+    state.roles = userInfo.roles
   },
+  // 最终计算出的异步路由
+  SET_RESULTASYNCROUTES: (state, resultAsyncRoutes) => {
+    state.resultAsyncRoutes = resultAsyncRoutes
+    state.resultAllRoutes = constantRoutes.concat(state.resultAsyncRoutes, anyRoutes)
+    router.addRoutes(state.resultAllRoutes)
+  }
+}
+
+
+// 计算异步路由
+const computedAsyncRoutes = (asyncRoutes, routes) => {
+  return asyncRoutes.filter(item => {
+    if (routes.indexOf(item.name) !== -1) {
+      if (item.children && item.children.length) {
+        item.children = computedAsyncRoutes(item.children, routes)
+      }
+      return true
+    }
+  })
 }
 
 const actions = {
@@ -40,16 +68,13 @@ const actions = {
     }
   },
 
-  // get user info
+  //获取用户信息
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
       getInfo(state.token).then(response => {
         const { data } = response
-
-        if (!data) {
-          return reject('Verification failed, please Login again.')
-        }
         commit('SET_USERINFO', data)
+        commit('SET_RESULTASYNCROUTES', computedAsyncRoutes(asyncRoutes, data.routes))
         resolve(data)
       }).catch(error => {
         reject(error)

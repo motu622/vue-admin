@@ -56,6 +56,11 @@ export const constantRoutes = [
     }]
   },
 
+
+]
+
+
+export const asyncRoutes = [
   {
     name: 'Acl',
     path: '/acl',
@@ -139,15 +144,14 @@ export const constantRoutes = [
   },
 ]
 
+
 //任意路由：当路径出现错误的时候重定向404
 export const anyRoutes = { path: '*', redirect: '/404', hidden: true };
 
 //任意理由：
-
 const createRouter = () => new Router({
   // mode: 'history', // require service support
   scrollBehavior: () => ({ y: 0 }),
-  //因为注册的路由是‘死的’，‘活的’路由如果根据不同用户（角色）可以展示不同菜单
   routes: constantRoutes
 })
 
