@@ -1,24 +1,35 @@
-import request from '@/utils/request'
+import ajax from '@/utils/ajax'
 
-export function login(data) {
-  return request({
-    url: '/vue-admin-template/user/login',
+
+/*
+登陆
+*/
+export function login({ username, password }) {
+  return ajax({
+    url: '/admin/acl/index/login',
     method: 'post',
-    data
+    data: { username, password }
   })
 }
 
-export function getInfo(token) {
-  return request({
-    url: '/vue-admin-template/user/info',
-    method: 'get',
-    params: { token }
+/*
+获取用户信息(根据token)
+*/
+export function getInfo() {
+  return ajax({
+    url: '/admin/acl/index/info',
+    method: 'get'
   })
 }
 
+/*
+登出
+*/
 export function logout() {
-  return request({
-    url: '/vue-admin-template/user/logout',
+  return ajax({
+    url: '/admin/acl/index/logout',
     method: 'post'
   })
 }
+
+
